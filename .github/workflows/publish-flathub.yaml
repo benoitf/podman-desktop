@@ -155,10 +155,6 @@ jobs:
           # add trustLockfile config for pnpm install
           sed -i 's|pnpm install --loglevel debug --offline --frozen-lockfile|pnpm install --loglevel debug --offline --frozen-lockfile --config.trustLockfile=true|' io.podman_desktop.PodmanDesktop.yml
 
-          # patch electron-builder config to pass electron_config_cache to @electron/get v5 (which no longer reads ELECTRON_CACHE env var)
-          sed -i '/electron-builder build/i\      - sed -i "s/const config = {/const config = { electronDownload: { cache: process.env.electron_config_cache },/" .electron-builder.config.cjs' io.podman_desktop.PodmanDesktop.yml
-
-
           # update the pnpm store url/sha256
           yq -i '(.modules[].sources[] | select(.url == "*store-cache-pnpm*amd64*")) += {"url":strenv(PNPM_STORE_CACHE_AMD64_URL), "sha256":strenv(PODMAN_DESKTOP_PNPM_AMD64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
           yq -i '(.modules[].sources[] | select(.url == "*store-cache-pnpm*arm64*")) += {"url":strenv(PNPM_STORE_CACHE_ARM64_URL), "sha256":strenv(PODMAN_DESKTOP_PNPM_ARM64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
@@ -168,6 +164,9 @@ jobs:
 
           # update the version of the cache for the env variable
           sed -i -E 's|^( *- export ELECTRON_CACHE="\$\(\s*pwd\s*\)/)[^"]+(".*)|\1'"$ELECTRON_CACHE_DIRECTORY"'\2|' io.podman_desktop.PodmanDesktop.yml
+
+          # patch electron-builder config to pass electron_config_cache to @electron/get v5 (which no longer reads ELECTRON_CACHE env var)
+          sed -i '/electron-builder build/i\      - sed -i "s|const config = {|const config = { electronDownload: { cache: process.env.electron_config_cache },|" .electron-builder.config.cjs' io.podman_desktop.PodmanDesktop.yml
 
         env:
           GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
