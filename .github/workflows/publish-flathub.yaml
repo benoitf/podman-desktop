@@ -152,6 +152,9 @@ jobs:
           # update pnpm store directory name (v10 -> v11)
           sed -i 's|mv v10 pnpm-store/|mv v11 pnpm-store/|' io.podman_desktop.PodmanDesktop.yml
 
+          # add trustLockfile config for pnpm install
+          sed -i 's|pnpm install --loglevel debug --offline --frozen-lockfile|pnpm install --loglevel debug --offline --frozen-lockfile --config.trustLockfile=true|' io.podman_desktop.PodmanDesktop.yml
+
 
           # update the pnpm store url/sha256
           yq -i '(.modules[].sources[] | select(.url == "*store-cache-pnpm*amd64*")) += {"url":strenv(PNPM_STORE_CACHE_AMD64_URL), "sha256":strenv(PODMAN_DESKTOP_PNPM_AMD64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
