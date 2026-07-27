@@ -155,6 +155,9 @@ jobs:
           # add trustLockfile config for pnpm install
           sed -i 's|pnpm install --loglevel debug --offline --frozen-lockfile|pnpm install --loglevel debug --offline --frozen-lockfile --config.trustLockfile=true|' io.podman_desktop.PodmanDesktop.yml
 
+          # symlink electron cache to @electron/get v5 default location (XDG_CACHE_HOME/electron)
+          sed -i '/electron-builder build/i\      - mkdir -p $XDG_CACHE_HOME/electron \&\& ln -s $(pwd)/electron-cache/* $XDG_CACHE_HOME/electron/' io.podman_desktop.PodmanDesktop.yml
+
 
           # update the pnpm store url/sha256
           yq -i '(.modules[].sources[] | select(.url == "*store-cache-pnpm*amd64*")) += {"url":strenv(PNPM_STORE_CACHE_AMD64_URL), "sha256":strenv(PODMAN_DESKTOP_PNPM_AMD64_SHASUM)}' io.podman_desktop.PodmanDesktop.yml
